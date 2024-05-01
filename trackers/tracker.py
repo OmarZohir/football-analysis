@@ -85,26 +85,25 @@ class Tracker:
     #draw an ellipse around the player, at the bottom of the bounding box
     def draw_ellipse(self, frame, bbox, color, track_id):
         y2 = int(bbox[3])
-        x_center, y_center = get_center_of_bbox(bbox)
+        x_center, _ = get_center_of_bbox(bbox)
         width = get_bbox_width(bbox)
         
         frame = cv2.ellipse(frame,
-                            center=(x_center, y_center),
-                            axes=(int(width), int(0.35*width)),
+                            center=(x_center, y2),
+                            axes=(int(width), int(0.25*width)),
                             angle=0,
                             startAngle=-45,
                             endAngle=235,
                             color=color,
-                            thickness=2,
+                            thickness=1,
                             lineType=cv2.LINE_4) 
         
         return frame
     
     def draw_annotations(self, frames, tracks):
         output_frames = []
-        for frame_idx, frame in enumerate(frames):
-            frame = frame.copy()
-            
+        frames_copy = frames.copy()
+        for frame_idx, frame in enumerate(frames_copy):
             player_dict = tracks['players'][frame_idx]
             referee_dict = tracks['referees'][frame_idx]
             ball_dict = tracks['ball'][frame_idx]
@@ -122,5 +121,9 @@ class Tracker:
                 frame = self.draw_ellipse(frame, ball_bbox, (255, 0, 255), track_id)
                 
             output_frames.append(frame)
+            del frame
             
         return output_frames
+    
+    
+    
