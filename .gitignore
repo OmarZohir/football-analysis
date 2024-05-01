@@ -2,7 +2,8 @@ in_videos/
 runs/
 cv-env/
 out_videos/
-
+utils/__pycache__/
+trackers/__pycache__/
 training/football-players-detection-1/
 # ignore YOLO v8 models
 yolov8x.pt
