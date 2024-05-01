@@ -1,6 +1,7 @@
-clips/
+in_videos/
 runs/
 cv-env/
+out_videos/
 
 training/football-players-detection-1/
 # ignore YOLO v8 models
