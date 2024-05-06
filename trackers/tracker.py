@@ -63,10 +63,10 @@ class Tracker:
                 track_id = frame_detection[4]
                 
                 if cls_names[cls_id] == 'player':         
-                    tracks['players'][frame_idx][track_id] = bbox
+                    tracks['players'][frame_idx][track_id] = {"bbox": bbox}
                 
                 elif cls_names[cls_id] == 'referee':
-                    tracks['referees'][frame_idx][track_id] = bbox
+                    tracks['referees'][frame_idx][track_id] = {"bbox": bbox}
                 
                 for frame_detection in detection_spv:
                     bbox = frame_detection[0].tolist()
@@ -74,7 +74,7 @@ class Tracker:
                     #only 1 ball, no need for a track id
                     
                     if cls_names[cls_id] == 'ball':
-                        tracks['ball'][frame_idx][1] = bbox
+                        tracks['ball'][frame_idx][1] = {"bbox": bbox}
             
         
         if stub_path is not None and read_from_stub is False:
@@ -84,7 +84,7 @@ class Tracker:
         return tracks        
     
     #draw an ellipse around the player, at the bottom of the bounding box
-    def draw_ellipse(self, frame, bbox, color, track_id=None):
+    def draw_ellipse(self, frame, bbox, color, track_id=None, team_id=None):
         y2 = int(bbox[3])
         x_center, _ = get_center_of_bbox(bbox)
         width = get_bbox_width(bbox)
@@ -118,9 +118,13 @@ class Tracker:
             x1_text = x1_rect + 12
             if track_id > 99:
                 x1_text -=  10
-                
+            
+            label_text = f"{track_id}"
+            if team_id is not None:
+                label_text += f" Team {team_id}"
+              
             cv2.putText(frame,
-                        f"{track_id}",
+                        label_text,
                         (int(x1_text), int(y1_rect+15)),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         0.6,
@@ -150,16 +154,16 @@ class Tracker:
             ball_dict = tracks['ball'][frame_idx]
             
             #Drawing players
-            for track_id, player_bbox in player_dict.items():
-                frame = self.draw_ellipse(frame, player_bbox, (0, 0, 255), track_id)
+            for track_id, player in player_dict.items():
+                frame = self.draw_ellipse(frame, player["bbox"], (0, 0, 255), track_id, player.get('team'))
             
             #Drawing referees
-            for track_id, referee_bbox in referee_dict.items():
-                frame = self.draw_ellipse(frame, referee_bbox, (0, 255, 255))
+            for track_id, referee in referee_dict.items():
+                frame = self.draw_ellipse(frame, referee["bbox"], (0, 255, 255))
             
             #Drawing ball
-            for track_id, ball_bbox in ball_dict.items():
-                frame = self.draw_triangle(frame, ball_bbox, (255, 0, 255))
+            for track_id, ball in ball_dict.items():
+                frame = self.draw_triangle(frame, ball["bbox"], (255, 0, 255))
                 
             output_frames.append(frame)
             
